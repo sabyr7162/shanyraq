@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "shanyraq"
+version = "0.1.0"
+description = ""
+authors = ["Batyrzhan <'destroyersbd@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+uvicorn = "^0.54.0"
+fastapi = "^0.141.1"
+sqlalchemy = "^2.1.1"
+pyjwt = "^2.15.1"
+pwdlib = {extras = ["argon2"], version = "^0.3.1"}
+python-multipart = "^0.0.32"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
