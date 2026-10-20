@@ -1,5 +1,5 @@
 from pwdlib import PasswordHash
-from fastapi.security import HTTPBearer
+from fastapi.security import HTTPBearer, OAuth2PasswordBearer
 from fastapi import HTTPException, status
 from datetime import datetime, timezone, timedelta
 
@@ -10,6 +10,7 @@ password_hash = PasswordHash.recommended()
 SECRET_KEY = "sectrdlf;askdgkasldgklsd,lgds,rweasdf;elwr,dasf,dfghjkkoproewr"
 ALGORITHM = "HS256"
 bearer = HTTPBearer()
+oauth2_scheme = OAuth2PasswordBearer()
 
 
 def create_token(user_id):
