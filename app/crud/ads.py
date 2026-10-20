@@ -1,3 +1,4 @@
+from fastapi import HTTPException
 from sqlalchemy import select, func
 
 from app.models.ads import ads
@@ -15,6 +16,8 @@ def create_ad(session, user_id, data: dict):
 def find_ad(session, id):
     query = select(ads).where(ads.c.id == id)
     result = session.execute(query).mappings().fetchone()
+    if not result:
+        raise HTTPException(status_code=404, detail='Ad not found')
     result = dict(result)
 
     count_query = select(func.count(comments.c.id)).where(comments.c.ad_id == id)

@@ -9,7 +9,7 @@ ads = Table(
     Column('id', Integer, autoincrement=True, primary_key=True),
     Column('user_id', Integer, ForeignKey('users.id'), nullable=False),
     Column('type', String),
-    Column('price', Integer),
+    Column('price', Float),
     Column('address', String),
     Column('area', Float),
     Column('rooms_count', Integer),

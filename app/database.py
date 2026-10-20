@@ -1,6 +1,7 @@
 from pathlib import Path
-from sqlalchemy import create_engine, MetaData
+from sqlalchemy import create_engine, MetaData, event
 from sqlalchemy.orm import sessionmaker
+
 
 
 
@@ -22,3 +23,10 @@ def get_db():
 def initialize_database():
     with engine.begin() as connection:
         metadata.create_all(connection)
+
+
+@event.listens_for(engine, "connect")
+def set_sqlite_pragrma(dbapi_connection, connection_record):
+    cursor = dbapi_connection.cursor()
+    cursor.execute("PRAGMA foreign_keys=ON")
+    cursor.close()

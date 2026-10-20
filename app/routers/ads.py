@@ -1,4 +1,4 @@
-from fastapi import APIRouter, status, Depends
+from fastapi import APIRouter, status, Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 
@@ -22,7 +22,7 @@ def post_ad(
     data = body.model_dump()
 
     result = create_ad(session, user_id, data)
-    return result.inserted_primary_key[0]
+    return {'id': result.inserted_primary_key[0]}
 
 
 @router.get("/{id}")
@@ -30,7 +30,8 @@ def get_ad(
     id:int,
     session:Session = Depends(get_db), 
 ):
-    return find_ad(session, id)
+    result =  find_ad(session, id)
+    return result
 
 
 @router.patch('/{id}')
@@ -44,11 +45,9 @@ def change_ad(
     user_id = payload.get('sub')
     data = body.model_dump(exclude_unset=True)
     query_result = update_ad(session, id, user_id, data)
-    if query_result:
-        return status.HTTP_200_OK
-    else:
-        return status.HTTP_404_NOT_FOUND
-
+    if not query_result:
+        raise HTTPException(status_code=404, detail='Ad not found or unauthorized')
+    return status.HTTP_200_OK
 
 @router.delete('/{id}')
 def delete_ad(
@@ -59,7 +58,6 @@ def delete_ad(
     payload = token_verify(credentials)
     user_id = payload.get('sub')
     query_result = remove_ad(session, id, user_id)
-    if query_result:
-        return status.HTTP_200_OK
-    else:
-        return status.HTTP_404_NOT_FOUND
+    if not query_result:
+        raise HTTPException(status_code=404, detail='Ad not found or unauthorized')
+    return status.HTTP_200_OK
