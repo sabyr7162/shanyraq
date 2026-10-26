@@ -5,3 +5,4 @@ sqlalchemy
 alembic
 pyjwt
 pwdlib[argon2]
+python-multipart
