@@ -5,6 +5,7 @@ from .routers.ads import router as AdsRouter
 from .routers.comments import router as CommentsRouter
 from .database import initialize_database
 
+
 app = FastAPI()
 app.include_router(UserRouter)
 app.include_router(AdsRouter)
