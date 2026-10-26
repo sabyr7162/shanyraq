@@ -3,7 +3,7 @@ from fastapi.security import HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 from typing import Annotated
 
-from app.core.security import token_verify, bearer
+from app.core.security import token_verify, oauth2_scheme
 from app.database import get_db
 from app.crud.comments import create_comment, find_comments, update_comment, remove_comment
 from app.schemas.comments import PostCommentRequest, UpdateCommentRequest
@@ -14,10 +14,10 @@ router = APIRouter()
 def post_comment(
     id:int,
     body: PostCommentRequest,
-    credentials: HTTPAuthorizationCredentials = Depends(bearer),
+    token: str = Depends(oauth2_scheme),
     session: Session = Depends(get_db)
 ):
-    payload = token_verify(credentials)
+    payload = token_verify(token)
     user_id = payload.get('sub')
     comment = body.model_dump()['comment']
     query_result = create_comment(session, id, user_id, comment)
@@ -36,10 +36,10 @@ def get_comments(id:str, session: Annotated[Session, Depends(get_db)]):
 def patch_comment(
     comment_id: int,
     body: UpdateCommentRequest,
-    credentials: HTTPAuthorizationCredentials = Depends(bearer),
+    token: str = Depends(oauth2_scheme),
     session: Session = Depends(get_db),
 ):
-    payload = token_verify(credentials)
+    payload = token_verify(token)
     user_id = payload.get('sub')
     content = body.model_dump()['comment']
     query_result = update_comment(session, comment_id, user_id, content)
@@ -51,10 +51,10 @@ def patch_comment(
 @router.delete('/shanyraks/{id}/comments/{comment_id}', status_code=200)
 def delete_comment(
     comment_id: int,
-    credentials: HTTPAuthorizationCredentials = Depends(bearer),
+    token: str = Depends(oauth2_scheme),
     session: Session = Depends(get_db)
 ):
-    payload = token_verify(credentials)
+    payload = token_verify(token)
     user_id = payload.get('sub')
     result = remove_comment(session, comment_id, user_id)
     if not result:

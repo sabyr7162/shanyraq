@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.schemas.ads import PostAdsRequest, UpdateAdsRequest
 from app.database import get_db
-from app.core.security import token_verify, bearer
+from app.core.security import token_verify, oauth2_scheme
 from app.crud.ads import create_ad, find_ad, update_ad, remove_ad
 
 router = APIRouter(prefix='/shanyraks')
@@ -15,9 +15,9 @@ router = APIRouter(prefix='/shanyraks')
 def post_ad(
     body: PostAdsRequest,
     session: Session = Depends(get_db),
-    credentials: HTTPAuthorizationCredentials = Depends(bearer)
+    token: str = Depends(oauth2_scheme)
 ):
-    payload = token_verify(credentials)
+    payload = token_verify(token)
     user_id = payload.get("sub")
     data = body.model_dump()
 
@@ -39,9 +39,9 @@ def change_ad(
     id: int,
     body: UpdateAdsRequest,
     session : Session = Depends(get_db),
-    credentials: HTTPAuthorizationCredentials = Depends(bearer)
+    token: str = Depends(oauth2_scheme),
 ):
-    payload = token_verify(credentials)
+    payload = token_verify(token)
     user_id = payload.get('sub')
     data = body.model_dump(exclude_unset=True)
     query_result = update_ad(session, id, user_id, data)
@@ -49,13 +49,14 @@ def change_ad(
         raise HTTPException(status_code=404, detail='Ad not found or unauthorized')
     return status.HTTP_200_OK
 
+
 @router.delete('/{id}')
 def delete_ad(
     id: int, 
-    credentials: HTTPAuthorizationCredentials = Depends(bearer),
+    token: str = Depends(oauth2_scheme),
     session: Session = Depends(get_db)
 ):
-    payload = token_verify(credentials)
+    payload = token_verify(token)
     user_id = payload.get('sub')
     query_result = remove_ad(session, id, user_id)
     if not query_result:

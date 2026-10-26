@@ -6,7 +6,7 @@ from typing import Annotated
 from app.schemas.users import RegisterUserResponse, RegisterUserRequest, UpadateUserRequest, UpadateUserResponse, UserInfo
 from app.crud.users import find_username, create_user, find_user, update_user
 from app.database import get_db
-from app.core.security import password_hash, create_token, token_verify, bearer
+from app.core.security import password_hash, create_token, token_verify, oauth2_scheme
 
 
 router = APIRouter()
@@ -46,10 +46,10 @@ def login(
 @router.patch('/auth/users/me', status_code=status.HTTP_200_OK, response_model = UpadateUserResponse)
 def update(
     body: UpadateUserRequest, 
-    credentials: HTTPAuthorizationCredentials = Depends(bearer),
+    token: str = Depends(oauth2_scheme),
     session: Session = Depends(get_db)
 ):
-    payload = token_verify(credentials)
+    payload = token_verify(token)
     data = body.model_dump(exclude_unset=True)
     user_id = payload.get('sub')
     query_result = update_user(session, user_id, data)
@@ -62,8 +62,8 @@ def update(
 @router.get("/auth/users/me", status_code=status.HTTP_200_OK, response_model=UserInfo)
 def get_me(
     session: Session = Depends(get_db),
-    credentials: HTTPAuthorizationCredentials = Depends(bearer)
+    token: str = Depends(oauth2_scheme)
 ):
-    payload = token_verify(credentials)
+    payload = token_verify(token)
     user = find_user(session, payload['sub'])
     return user

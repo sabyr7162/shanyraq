@@ -1,5 +1,5 @@
 from pwdlib import PasswordHash
-from fastapi.security import HTTPBearer, OAuth2PasswordBearer
+from fastapi.security import OAuth2PasswordBearer
 from fastapi import HTTPException, status
 from datetime import datetime, timezone, timedelta
 
@@ -9,8 +9,7 @@ import jwt
 password_hash = PasswordHash.recommended()
 SECRET_KEY = "sectrdlf;askdgkasldgklsd,lgds,rweasdf;elwr,dasf,dfghjkkoproewr"
 ALGORITHM = "HS256"
-bearer = HTTPBearer()
-oauth2_scheme = OAuth2PasswordBearer()
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/users/login")
 
 
 def create_token(user_id):
@@ -25,7 +24,7 @@ def create_token(user_id):
 def token_verify(credentials):
     try:
         payload = jwt.decode(
-            credentials.credentials,
+            credentials,
             SECRET_KEY,
             algorithms=[ALGORITHM]
         )
